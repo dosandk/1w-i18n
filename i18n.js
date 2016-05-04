@@ -59,6 +59,7 @@
 
         defaults.language.forEach(function (item) {
             if (Object.keys($.i18n.dictionaries).indexOf(item) >= 0 || item === settings.defaultLanguage) {
+                settings.callback();
                 return;
             }
 
