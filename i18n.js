@@ -126,25 +126,20 @@
     };
 
     $.i18n.mT = function(locale, key) {
-        var parsedStr;
-        var dictionary = $.i18n.dictionaries[locale];
+        var parsedStr,
+            dictionary = $.i18n.dictionaries[locale];
 
-        if (dictionary) {
-            var value = dictionary[key];
-
-            if (value == null) {
-                parsedStr = '[' + key + ']';
-            }
-            else {
-                parsedStr = value;
-            }
-
-            return parsedStr;
+        if (dictionary && dictionary[key]) {
+            parsedStr = dictionary[key];
+        }
+        else if ($.i18n.map[key]) {
+            parsedStr = $.i18n.map[key];
         }
         else {
-            console.error('dictionary doesn\'t exist');
+            parsedStr = '[' + key + ']';
         }
 
+        return parsedStr;
     };
 
     function getBrowserLang() {
