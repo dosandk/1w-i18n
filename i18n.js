@@ -33,7 +33,7 @@
         var locale = settings.language.substring(0, 2);
         var currentFileName = settings.path + settings.name + '_' + locale + '.json';
 
-        $.when(getCurrentLanguage(currentFileName)).then(
+        return $.when(getCurrentLanguage(currentFileName)).then(
             function (currentLanguage) {
                 $.i18n.map = currentLanguage;
 
@@ -56,6 +56,7 @@
         var deferreds = [];
         var locale;
         var currentFileName;
+        var promise;
 
         defaults.language.forEach(function (item) {
             if (Object.keys($.i18n.dictionaries).indexOf(item) >= 0 || item === settings.defaultLanguage) {
@@ -70,8 +71,8 @@
         });
 
         if (deferreds.length) {
-            $.when.apply($, deferreds).then(
-                function () {
+            promise = $.when.apply($, deferreds).then(
+                function() {
                     var argumentsArr = Array.prototype.slice.call(arguments);
 
                     defaults.language.forEach(function (locale, index) {
@@ -83,24 +84,31 @@
                         }
                     });
 
-                    settings.callback();
+                    return settings.callback();
                 },
-                function () {
-                    console.error('something goes wrong');
+                function() {
+                    console.log('something goes wrong');
                 }
             );
+        }
+        else {
+            promise = $.when(true).then(function() {
+                return settings.callback();
+            });
         }
 
         // Remove previous dictionaries
         for (var item in $.i18n.dictionaries) {
             if (item === settings.defaultLanguage) {
-                return;
+                break;
             }
 
             if (prevDictionaries.indexOf(item) >= 0) {
                 delete $.i18n.dictionaries[item]
             }
         }
+
+        return promise;
     };
 
     $.i18n.t = function (key) {
@@ -156,8 +164,7 @@
         return $.ajax({
             url: filename,
             contentType: 'application/json',
-            dataType: 'json',
-            method: 'POST'
+            dataType: 'json'
         });
     }
 
